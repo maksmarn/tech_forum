@@ -1,6 +1,11 @@
+import hashlib
 from flask import Flask, render_template, request, redirect, url_for
+from models.user import User
+from models.settings import db
 
 app = Flask(__name__)
+
+db.create_all()
 
 # Handler 1
 @app.route('/', methods=["GET", "POST"])
@@ -27,9 +32,10 @@ def signup():
         if password != repeat:
             return "The two entered passwords don't match. Please try again."
         
-        print(username)
-        print(password)
-        print(repeat)
+        user = User(username=username,
+                    password_hash=hashlib.sha256(password.encode()).hexdigest())
+        db.add(user)  # Add to the transaction (user is not yet in the database)
+        db.commit()  # Commit the transaction into the database
         
         return redirect(url_for('index'))
 
