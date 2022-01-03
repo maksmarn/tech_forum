@@ -9,17 +9,13 @@
     </head>
 
     <body>
-        <p><a href="/">Home</a> | <a href="/signup">Sign up</a></p>
+        <p><a href="/">Home</a> | <a href="/signup">Signup</a> | <a href="/login">Login</a></p>
 
-        <h1>Welcome to Sigma tech forum!</h1>
-
-        <form method="post" action="/">
-            <p>
-                Please enter your name: <input type="text" name="your-name">
-            </p>
-
-            <button type="submit">submit</button>
-        </form>
+        {% if user %}
+            <h1>Welcome to Sigma Tech Forum, {{user.username}}!</h1>
+        {% else %}
+            <h1>Welcome to Sigma Tech Forum, pardner!</h1>
+        {% endif %}
     </body>
 
 </html>
