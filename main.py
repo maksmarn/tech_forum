@@ -17,7 +17,7 @@ def index():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "GET":
-        return "Here's the second handler"
+        return render_template("signup.html")
     
     elif request.method == "POST":
         username = request.form.get("username")
