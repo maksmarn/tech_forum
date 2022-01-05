@@ -1,23 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Signup | Sigma Tech Forum</title>
+{% extends "base.html" %}
 
-        <link rel="stylesheet" href="/static/css/style.css">
-    </head>
+{% block title %}Sign up | Sigma Tech Forum{% endblock title %}
 
-    <body>
-        <p><a href="/">Home</a> | <a href="/signup">Signup</a> | <a href="/login">Login</a></p>
+{% block content %}
 
-        <h1>Sign up for Sigma Tech Forum</h1>
+<h1>Sign up for Sigma Tech Forum</h1>
 
-        <form method="post">
-            <input type="text" name="username" placeholder="Think of a new username" required> <br>
-            <input type="text" name="password" placeholder="Think of a new password" required> <br>
-            <input type="text" name="repeat" placeholder="Enter your new password again" required> <br>
-        
-            <button type="submit">Submit</button>
-        </form>
-    </body>
-</html>
+<form method="post">
+    <input type="text" name="username" placeholder="Think of a new username" required> <br>
+    <input type="text" name="password" placeholder="Think of a new password" required> <br>
+    <input type="text" name="repeat" placeholder="Enter your new password again" required> <br>
+
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock content %}
