@@ -153,6 +153,30 @@ def topic_edit(topic_id):
             db.commit()
             
             return redirect(url_for('topic_details', topic_id=topic_id))
+        
+
+@app.route("/topic/<topic_id>/delete", methods=["GET", "POST"])
+def topic_delete(topic_id):
+    topic = db.query(Topic).get(int(topic_id))
+    
+    if request.method == "GET":
+        return render_template("topic_delete.html", topic=topic)
+    
+    elif request.method == "POST":
+        session_token = request.cookies.get("session_token")
+        user = db.query(User).filter_by(session_token=session_token).first()
+        
+        if not user:
+            return redirect(url_for('login'))
+        
+        elif topic.author.id != user.id:
+            return "You can't delete other people's posts!"
+        
+        else:
+            db.delete(topic)
+            db.commit()
+            
+            return redirect(url_for('index'))
 
 # This is just a regular way to run some Python files safely
 if __name__ == '__main__':
