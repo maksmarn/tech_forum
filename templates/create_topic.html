@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Create new topic{% endblock title %}
+
+{% block content %}
+
+<h1>Create a new topic!</h1>
+
+<form method='post'>
+    <input type="text" name="title" placeholder="Enter a title for your topic" required> <br>
+    <textarea name="text" rows="4" required></textarea> <br>
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock content %}

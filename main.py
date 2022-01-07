@@ -2,6 +2,7 @@ import hashlib, uuid
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from models.user import User
 from models.settings import db
+from models.topic import Topic
 
 app = Flask(__name__)
 
@@ -16,7 +17,10 @@ def index():
     # if there were no results.
     user = db.query(User).filter_by(session_token=session_token).first()
     
-    return render_template("index.html", user=user)
+    # Get all the topics from the db
+    topics = db.query(Topic).all()
+    
+    return render_template("index.html", user=user, topics=topics)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -84,6 +88,37 @@ def signup():
         
         return response
 
+
+@app.route("/create-topic", methods=["GET", "POST"])
+def create_topic():
+    # Get the current user (author)
+    session_token = request.cookies.get("session_token")
+    user = db.query(User).filter_by(session_token=session_token).first()
+    if request.method == "GET":
+        return render_template("create_topic.html", user=user)
+    
+    elif request.method == "POST":
+        title = request.form.get("title")
+        text = request.form.get("text")
+        
+        # Only logged in users can create a topic
+        if not user:
+            return redirect(url_for('login'))
+        
+        # Create a topic object
+        topic = Topic.create(title=title, text=text, author=user)
+        
+        return redirect(url_for('index'))
+
+
+@app.route("/topic/<topic_id>", methods=["GET"])
+def topic_details(topic_id):
+    topic = db.query(Topic).get(int(topic_id))
+    session_token = request.cookies.get("session_token")
+    user = db.query(User).filter_by(session_token=session_token).first()
+
+    
+    return render_template("topic_details.html", topic=topic, user=user)
 
 # This is just a regular way to run some Python files safely
 if __name__ == '__main__':

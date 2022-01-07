@@ -16,6 +16,9 @@
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             {% if user %}
+            <li class="nav-item">
+              <a class="nav-link" href="/create-topic">New topic</a>
+            </li>
             {% else %}
             <li class="nav-item">
               <a class="nav-link" href="/login">Log in</a>
