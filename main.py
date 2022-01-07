@@ -1,4 +1,5 @@
-import hashlib, uuid
+import hashlib
+import uuid
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from models.user import User
 from models.settings import db
@@ -7,6 +8,7 @@ from models.topic import Topic
 app = Flask(__name__)
 
 db.create_all()
+
 
 @app.route('/')
 def index():
@@ -40,6 +42,7 @@ def login():
         
         if not user:
             return "This user doesn't exist!"
+        
         else:
             # If the user exists, check if the password hashes match
             if password_hash == user.password_hash:
@@ -89,13 +92,13 @@ def signup():
         return response
 
 
-@app.route("/create-topic", methods=["GET", "POST"])
-def create_topic():
+@app.route("/topic-create", methods=["GET", "POST"])
+def topic_create():
     # Get the current user (author)
     session_token = request.cookies.get("session_token")
     user = db.query(User).filter_by(session_token=session_token).first()
     if request.method == "GET":
-        return render_template("create_topic.html", user=user)
+        return render_template("topic_create.html", user=user)
     
     elif request.method == "POST":
         title = request.form.get("title")
@@ -114,11 +117,42 @@ def create_topic():
 @app.route("/topic/<topic_id>", methods=["GET"])
 def topic_details(topic_id):
     topic = db.query(Topic).get(int(topic_id))
+    
     session_token = request.cookies.get("session_token")
     user = db.query(User).filter_by(session_token=session_token).first()
 
     
     return render_template("topic_details.html", topic=topic, user=user)
+
+
+@app.route("/topic/<topic_id>/edit", methods=["GET", "POST"])
+def topic_edit(topic_id):
+    topic = db.query(Topic).get(int(topic_id))
+    
+    if request.method == "GET":
+        return render_template("topic_edit.html", topic=topic)
+    
+    elif request.method == "POST":
+        title = request.form.get("title")
+        text = request.form.get("text")
+        
+        session_token = request.cookies.get("session_token")
+        user = db.query(User).filter_by(session_token=session_token).first()
+        
+        if not user:
+            return redirect(url_for('login'))
+        
+        elif topic.author.id != user.id:
+            return "You can't edit other people's posts!"
+        
+        else:
+            # Update the topic
+            topic.title = title
+            topic.text = text
+            db.add(topic)
+            db.commit()
+            
+            return redirect(url_for('topic_details', topic_id=topic_id))
 
 # This is just a regular way to run some Python files safely
 if __name__ == '__main__':
