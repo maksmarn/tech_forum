@@ -8,20 +8,32 @@
     <h1>Welcome to Sigma Tech Forum, pardner!</h1>
 {% endif %}
 
-<table border="1">
-    <tr>
-        <th>Topic</th>
-        <th>Author</th>
-        <th>Date created</th>
-    </tr>
-
-    {% for topic in topics %}
-    <tr>
-        <td><a href="/topic/{{topic.id}}">{{ topic.title }}</a></td>
-        <td>{{ topic.author.username }}</td>
-        <td>{{ topic.created.strftime('%d %b %Y %H:%M') }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="container">
+    <div class="row align-items-start">
+      <div class="col">
+        <div class="d-flex flex-column">
+        Topic
+        {% for topic in topics %}
+        <a class="mt-2" href="/topic/{{topic.id}}">{{ topic.title }}</a>
+        {% endfor %}
+        </div>
+      </div>
+      <div class="col">
+        <div class="d-flex flex-column">
+        Author
+        {% for topic in topics %}
+        <p>{{ topic.author. username }}</p>
+        {% endfor %}
+        </div>
+      </div>
+      <div class="col">
+        <div class="d-flex flex-column">
+        Date Created
+        {% for topic in topics %}
+        <p>{{ topic.created.strftime('%d %b %Y %H:%M') }}</p>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
 
 {% endblock content %}
