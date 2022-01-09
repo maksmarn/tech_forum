@@ -33,7 +33,7 @@ def login():
                 db.commit()
                 
                 # Save the user's session token into a cookie
-                response = make_response(redirect(url_for('index')))
+                response = make_response(redirect(url_for('topic.index')))
                 response.set_cookie("session_token", user.session_token, httponly=True, samesite='Strict')
                 
                 return response
@@ -67,7 +67,7 @@ def signup():
         # receiver are on the same site. Thirdly you can also add secure=True, which
         # would mean cookies can only be sent via HTTPS. But beware that this would
         # mean cookies would not work on localhost, because your localhost uses HTTP.
-        response = make_response(redirect(url_for("index")))
+        response = make_response(redirect(url_for("topic.index")))
         response.set_cookie("session_token", user.session_token, httponly=True,
                             samesite='Strict')
         
