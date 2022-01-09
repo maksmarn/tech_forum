@@ -22,7 +22,7 @@
     <tr>
       <td><a href="/topic/{{topic.id}}">{{ topic.title }}</a></td>
       <td>{{ topic.author.username}}</td>
-      <td>{{ topic.created.strftime('%d %b %Y %H %M') }}</td>
+      <td>{{ topic.created.strftime('%d %b %Y %H:%M') }}</td>
     </tr>
   {% endfor %}
   </tbody>
