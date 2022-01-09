@@ -1,12 +1,9 @@
-import smartninja_redis
-import os
 import uuid
 from flask import request, render_template, url_for, redirect, Blueprint
 from models.user import User
 from models.topic import Topic
 from models.settings import db
-
-redis = smartninja_redis.from_url(os.environ.get("REDIS_URL"))
+from utils.redis_helper import create_csrf_token, validate_csrf
 
 topic_handlers = Blueprint("topic", __name__)
 
@@ -22,7 +19,7 @@ def index():
     # Get all the topics from the db
     topics = db.query(Topic).all()
     
-    return render_template("index.html", user=user, topics=topics)
+    return render_template("topic/index.html", user=user, topics=topics)
 
 
 @topic_handlers.route("/topic-create", methods=["GET", "POST"])
@@ -35,21 +32,14 @@ def topic_create():
             return redirect(url_for('auth.login'))
         
     if request.method == "GET":
-        # Create a csrf token
-        csrf_token = str(uuid.uuid4())
-        
-        # Store the csrf token into Redis for that specific user
-        redis.set(name=csrf_token, value=user.username)
+        csrf_token = create_csrf_token(user.username)
         # Senc the csrf token into the html template
-        return render_template("topic_create.html", user=user, csrf_token=csrf_token)
+        return render_template("topic/topic_create.html", user=user, csrf_token=csrf_token)
     
     elif request.method == "POST":
-        # CSRF from HTML
         csrf = request.form.get("csrf")
-        # Username value stored under the csrf name from redis
-        redis_csrf_username = redis.get(name=csrf).decode()
         
-        if redis_csrf_username and redis_csrf_username == user.username:               
+        if validate_csrf(csrf, user.username):               
             title = request.form.get("title")
             text = request.form.get("text")
                     
@@ -70,7 +60,7 @@ def topic_details(topic_id):
     user = db.query(User).filter_by(session_token=session_token).first()
 
     
-    return render_template("topic_details.html", topic=topic, user=user)
+    return render_template("topic/topic_details.html", topic=topic, user=user)
 
 
 @topic_handlers.route("/topic/<topic_id>/edit", methods=["GET", "POST"])
@@ -78,7 +68,7 @@ def topic_edit(topic_id):
     topic = db.query(Topic).get(int(topic_id))
     
     if request.method == "GET":
-        return render_template("topic_edit.html", topic=topic)
+        return render_template("topic/topic_edit.html", topic=topic)
     
     elif request.method == "POST":
         title = request.form.get("title")
@@ -108,7 +98,7 @@ def topic_delete(topic_id):
     topic = db.query(Topic).get(int(topic_id))
     
     if request.method == "GET":
-        return render_template("topic_delete.html", topic=topic)
+        return render_template("topic/topic_delete.html", topic=topic)
     
     elif request.method == "POST":
         session_token = request.cookies.get("session_token")

@@ -10,7 +10,7 @@ auth_handlers = Blueprint("auth", __name__)
 @auth_handlers.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("auth/login.html")
     
     elif request.method == "POST":
         username = request.form.get("username")
@@ -44,7 +44,7 @@ def login():
 @auth_handlers.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "GET":
-        return render_template("signup.html")
+        return render_template("auth/signup.html")
     
     elif request.method == "POST":
         username = request.form.get("username")
