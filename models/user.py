@@ -7,5 +7,5 @@ class User(db.Model):
     username = db.Column(db.String, unique=True)
     password_hash = db.Column(db.String)
     session_token = db.Column(db.String)
-    created = db.Column(db.DateTime, default=datetime.utcnow)
+    created = db.Column(db.DateTime, default=datetime.now)
 

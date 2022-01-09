@@ -1,8 +1,10 @@
 import uuid
 from flask import request, render_template, url_for, redirect, Blueprint
+from models.comment import Comment
 from models.user import User
 from models.topic import Topic
 from models.settings import db
+from models.comment import Comment
 from utils.redis_helper import create_csrf_token, validate_csrf
 
 topic_handlers = Blueprint("topic", __name__)
@@ -58,9 +60,11 @@ def topic_details(topic_id):
     
     session_token = request.cookies.get("session_token")
     user = db.query(User).filter_by(session_token=session_token).first()
-
     
-    return render_template("topic/topic_details.html", topic=topic, user=user)
+    # Get all the comments on this topic
+    comments = db.query(Comment).filter_by(topic=topic).all()
+    
+    return render_template("topic/topic_details.html", topic=topic, user=user, csrf_token=create_csrf_token(user.username), comments=comments)
 
 
 @topic_handlers.route("/topic/<topic_id>/edit", methods=["GET", "POST"])
