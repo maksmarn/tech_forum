@@ -1,9 +1,13 @@
 import hashlib
 import uuid
+import os
+import smartninja_redis
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from models.user import User
 from models.settings import db
 from models.topic import Topic
+
+redis = smartninja_redis.from_url(os.environ.get("REDIS_URL"))
 
 app = Flask(__name__)
 
@@ -97,21 +101,36 @@ def topic_create():
     # Get the current user (author)
     session_token = request.cookies.get("session_token")
     user = db.query(User).filter_by(session_token=session_token).first()
-    if request.method == "GET":
-        return render_template("topic_create.html", user=user)
     
-    elif request.method == "POST":
-        title = request.form.get("title")
-        text = request.form.get("text")
-        
-        # Only logged in users can create a topic
-        if not user:
+    if not user:
             return redirect(url_for('login'))
         
-        # Create a topic object
-        topic = Topic.create(title=title, text=text, author=user)
+    if request.method == "GET":
+        # Create a csrf token
+        csrf_token = str(uuid.uuid4())
         
-        return redirect(url_for('index'))
+        # Store the csrf token into Redis for that specific user
+        redis.set(name=csrf_token, value=user.username)
+        # Senc the csrf token into the html template
+        return render_template("topic_create.html", user=user, csrf_token=csrf_token)
+    
+    elif request.method == "POST":
+        # CSRF from HTML
+        csrf = request.form.get("csrf")
+        # Username value stored under the csrf name from redis
+        redis_csrf_username = redis.get(name=csrf).decode()
+        
+        if redis_csrf_username and redis_csrf_username == user.username:               
+            title = request.form.get("title")
+            text = request.form.get("text")
+                    
+            # Create a topic object
+            topic = Topic.create(title=title, text=text, author=user)
+            
+            return redirect(url_for('index'))
+        
+        else:
+            return "The CSRF token is invalid!"
 
 
 @app.route("/topic/<topic_id>", methods=["GET"])
