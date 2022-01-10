@@ -10,8 +10,8 @@
 
 {% if user.id == topic.author.id %}
 <p>
-    <a href ="/topic/{{topic.id}}/edit">Edit</a>
-    <a href ="/topic/{{topic.id}}/delete">Delete</a>
+    <a href="/topic/{{topic.id}}/edit">Edit</a>
+    <a href="/topic/{{topic.id}}/delete">Delete</a>
 </p>
 {% endif %}
 <p>{{ topic.text }}</p>
@@ -29,7 +29,12 @@
 {% endif %}
 
 {% for comment in comments %}
-<p><strong>{{comment.author.username}}:</strong> {{ comment.text }}</p>
+<p><strong>{{comment.author.username}}:</strong> {{ comment.text }}
+    {% if user.username == comment.author.username %}
+    <a href="/comment/{{comment.id}}/edit">Edit</a>
+    <a href="/comment/{{comment.id}}/delete">Delete</a>
+    {% endif %}
 {% endfor %}
+</p>
 
 {% endblock content %}

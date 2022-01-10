@@ -35,3 +35,31 @@ def comment_create(topic_id):
         return redirect(url_for('topic.topic_details', topic_id=topic_id, csrf_token=create_csrf_token(user.username)))
     else:
         return "Your CSRF token is invalid!"
+    
+
+@comment_handlers.route("/comment/<comment_id>/edit", methods=["GET", "POST"])
+def comment_edit(comment_id):
+    comment = db.query(Comment).get(int(comment_id))
+
+    
+    if request.method == "GET":
+        return render_template("comment/comment_edit.html", comment=comment)
+
+    elif request.method == "POST":
+        text = request.form.get("text")
+        
+        session_token = request.cookies.get("session_token")
+        user = db.query(User).filter_by(session_token=session_token).first()
+        
+        if not user:
+            return redirect(url_for('auth.login'))
+        
+        elif comment.author.id != user.id:
+            "You can't edit other people's comments!"
+            
+        else:
+            comment.text = text
+            db.add(comment)
+            db.commit()
+            
+            return redirect(url_for('topic.index'))            

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Delete comment{% endblock title %}
+
+{% block content %}
+
+<h1>Are you sure you wish to delete this comment?</h1> <br>
+
+<p>{{ topic.text }}</p>
+<form method="post">
+    <button type="submit">Delete</button>
+</form>
+
+{% endblock content %}
