@@ -1,5 +1,6 @@
 from models.settings import db
 from datetime import datetime
+from utils.email_helper import send_email
 
 
 class Comment(db.Model):
@@ -19,5 +20,10 @@ class Comment(db.Model):
         comment = cls(text=text, author=author, topic=topic)
         db.add(comment)
         db.commit()
+        
+        if topic.author.email_address:
+            send_email(receiver_email=topic.author.email_address,
+                       subject="Someone just posted a comment on your topic!",
+                       text=f"There's a new comment under your topic ({topic.title}).")
         
         return comment

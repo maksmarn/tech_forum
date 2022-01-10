@@ -1,4 +1,3 @@
-import uuid
 from flask import request, render_template, url_for, redirect, Blueprint
 from models.comment import Comment
 from models.user import User
