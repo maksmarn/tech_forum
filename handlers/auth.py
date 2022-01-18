@@ -47,7 +47,6 @@ def signup():
         return render_template("auth/signup.html")
     
     elif request.method == "POST":
-        email_address = request.form.get("email-address")
         username = request.form.get("username")
         password = request.form.get("password")
         repeat = request.form.get("repeat")
@@ -57,8 +56,7 @@ def signup():
         
         user = User(username=username,
                     password_hash=hashlib.sha256(password.encode()).hexdigest(), 
-                    session_token=str(uuid.uuid4()),
-                    email_address=email_address)
+                    session_token=str(uuid.uuid4()))
         db.add(user)  # Add to the transaction (user is not yet in the database)
         db.commit()  # Commit the transaction into the database
         

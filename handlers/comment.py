@@ -62,4 +62,30 @@ def comment_edit(comment_id):
             db.add(comment)
             db.commit()
             
-            return redirect(url_for('topic.index'))            
+            return redirect(url_for('topic.index'))
+        
+
+@comment_handlers.route("/comment/<comment_id>/delete", methods=["GET", "POST"])
+def comment_delete(comment_id):
+    comment = db.query(Comment).get(int(comment_id))
+
+    
+    if request.method == "GET":
+        return render_template("comment/comment_delete.html", comment=comment)
+
+    elif request.method == "POST":
+        session_token = request.cookies.get("session_token")
+        user = db.query(User).filter_by(session_token=session_token).first()
+        
+        if not user:
+            return redirect(url_for('auth.login'))
+        
+        elif comment.author.id != user.id:
+            return "You can't delete other people's comments!"
+        
+        else:
+            db.delete(comment)
+            db.commit()
+            
+            return redirect(url_for('topic.index'))
+    
