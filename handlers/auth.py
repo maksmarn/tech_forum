@@ -88,9 +88,9 @@ def signup():
         return response
     
     
-@auth_handlers.route("/verify-email/<token>", methods=["GET"])
-def verify_email(token):
-    user = db.query(User).filter_by(verification_token=token).first()
+@auth_handlers.route("/verify-email/<verification_token>", methods=["GET"])
+def verify_email(verification_token):
+    user = db.query(User).filter_by(verification_token=verification_token).first()
 
     if user:
         user.verified = True
