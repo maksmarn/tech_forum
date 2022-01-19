@@ -1,6 +1,5 @@
 import hashlib
 import os
-from re import sub
 import uuid
 from flask import make_response, redirect, url_for, request, render_template, Blueprint
 from models.settings import db
@@ -37,7 +36,7 @@ def login():
                 
                 # Save the user's session token into a cookie
                 response = make_response(redirect(url_for('topic.index')))
-                response.set_cookie("session_token", user.session_token, httponly=True, samesite='Strict')
+                response.set_cookie("session_token", user.session_token)
                 
                 return response
             else:
@@ -82,15 +81,14 @@ def signup():
         # would mean cookies can only be sent via HTTPS. But beware that this would
         # mean cookies would not work on localhost, because your localhost uses HTTP.
         response = make_response(redirect(url_for("topic.index")))
-        response.set_cookie("session_token", user.session_token, httponly=True,
-                            samesite='Strict')
+        response.set_cookie("session_token", user.session_token)
         
         return response
     
     
-@auth_handlers.route("/verify-email/<verification_token>", methods=["GET"])
-def verify_email(verification_token):
-    user = db.query(User).filter_by(verification_token=verification_token).first()
+@auth_handlers.route("/verify-email/<token>", methods=["GET"])
+def verify_email(token):
+    user = db.query(User).filter_by(verification_token=token).first()
 
     if user:
         user.verified = True
