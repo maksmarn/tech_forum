@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Email verification{% endblock title %}
+
+{% block content %}
+
+{% if verified %}
+    <h1>Success!</h1>
+    <p>Your email address has been successfully verified. Now you can start using the forum.</p>
+{% else %}
+    <h1>Oh no...</h1>
+    <p>Verification unsuccessful. Please contact the website administrators for more information.</p>
+{% endif %}
+
+{% endblock content %}

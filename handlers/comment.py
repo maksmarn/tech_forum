@@ -15,7 +15,7 @@ comment_handlers = Blueprint("comment", __name__)
 @comment_handlers.route("/topic/<topic_id>/create-comment", methods=["POST"])
 def comment_create(topic_id):
     session_token = request.cookies.get("session_token")
-    user = db.query(User).filter_by(session_token=session_token).first()
+    user = db.query(User).filter_by(session_token=session_token, verified=True).first()
     
     if not user:
         return redirect(url_for("auth.login"))

@@ -27,7 +27,7 @@ def index():
 def topic_create():
     # Get the current user (author)
     session_token = request.cookies.get("session_token")
-    user = db.query(User).filter_by(session_token=session_token).first()
+    user = db.query(User).filter_by(session_token=session_token, verified=True).first()
     
     if not user:
             return redirect(url_for('auth.login'))

@@ -1,8 +1,11 @@
 import hashlib
+import os
+from re import sub
 import uuid
 from flask import make_response, redirect, url_for, request, render_template, Blueprint
 from models.settings import db
 from models.user import User
+from utils.email_helper import send_email
 
 auth_handlers = Blueprint("auth", __name__)
 
@@ -58,9 +61,18 @@ def signup():
         user = User(email_address=email_address,
                     username=username,
                     password_hash=hashlib.sha256(password.encode()).hexdigest(), 
-                    session_token=str(uuid.uuid4()))
+                    session_token=str(uuid.uuid4()),
+                    verification_token=str(uuid.uuid4()))
         db.add(user)  # Add to the transaction (user is not yet in the database)
         db.commit()  # Commit the transaction into the database
+        
+        # Verification email
+        subject = "Verify your email address."
+        domain = "{}.herokuapp.com".format(os.getenv("HEROKU_APP_NAME"))
+        text = "Hello! Please click on this link to verify your email address: {0}/verify-email/{1}".format(domain, user.verification_token)
+        
+        # Send the verification email
+        send_email(receiver_email=user.email_address, subject=subject, text=text)
         
         # Save the user's session token into a cookie
         # HttpOnly and SameSite settings in a cookie provide greater security
@@ -74,3 +86,15 @@ def signup():
                             samesite='Strict')
         
         return response
+    
+    
+@auth_handlers.route("/verify-email/<token>", methods=["GET"])
+def verify_email(token):
+    user = db.query(User).filter_by(verification_token=token).first()
+
+    if user:
+        user.verified = True
+        db.add(user)
+        db.commit()
+
+    return render_template("auth/email_verification_result.html", verified=user.verified)
