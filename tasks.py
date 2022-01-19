@@ -1,5 +1,6 @@
 import os
-import random
+import requests
+import json
 
 from huey import RedisHuey
 
@@ -7,16 +8,40 @@ from huey import RedisHuey
 huey = RedisHuey(url=os.getenv('REDIS_URL'))
 
 
-# @huey.task creates a function, which is marked as a background task. If it fails, Huey will try max. 5 times with a 5 second delay to successfully execute the task
-@huey.task(retries=5, retry_delay=5)
-def get_random_num():
-    print("This is a task for producing a random number")
-    num = random.randint(1, 3)
-    print(f"The random number is {num}.")
-    
-    # If the random integer is exactly 1, the task is successfully executed, otherwise it fails
-    if num == 1:
-        return True
-    
+# @huey.task creates a function, which is marked as a background task. If it fails, Huey will try max. 10 times with a 10 second delay to successfully execute the task
+@huey.task(retries=10, retry_delay=10)
+def send_email_task(receiver_email, subject, text):
+    sender_email = os.getenv("MY_SENDER_EMAIL")  # Your website's official email address
+    api_key = os.getenv('SENDGRID_API_KEY')
+
+    if sender_email and api_key:
+        url = "https://api.sendgrid.com/v3/mail/send"
+
+        data = {"personalizations": [{
+                    "to": [{"email": receiver_email}],
+                    "subject": subject
+                }],
+
+                "from": {"email": sender_email},
+
+                "content": [{
+                    "type": "text/plain",
+                    "value": text
+                }]
+        }
+
+        headers = {
+            'authorization': "Bearer {0}".format(api_key),
+            'content-type': "application/json"
+        }
+
+        response = requests.request("POST", url=url, data=json.dumps(data), headers=headers)
+
+        print("Sent to SendGrid")
+        print(response.text)
     else:
-        raise Exception("There has been an error in the worker")
+        print("No env vars or no email address")
+        print("The email wasn't sent.")
+        print(f"If it were, this would have been the subject: {subject}.")
+        print(f"And this would have been the text: {text}.")
+        print(f"It would have been sent to: {receiver_email}.")

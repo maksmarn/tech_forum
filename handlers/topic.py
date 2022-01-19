@@ -1,4 +1,3 @@
-import os
 from flask import request, render_template, url_for, redirect, Blueprint
 from models.comment import Comment
 from models.user import User
@@ -62,13 +61,6 @@ def topic_details(topic_id):
     
     # Get all the comments on this topic
     comments = db.query(Comment).filter_by(topic=topic).all()
-    
-    
-    # Start testing background tasks (DELETE THIS CODE LATER)
-    if os.getenv('REDIS_URL'):
-        from tasks import get_random_num
-        get_random_num()
-        
     
     
     return render_template("topic/topic_details.html", topic=topic, user=user, 

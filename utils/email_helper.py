@@ -1,36 +1,18 @@
-import json
 import os
-import requests
+from tasks import send_email_task
 
 
 def send_email(receiver_email, subject, text):
-    sender_email = os.getenv("MY_SENDER_EMAIL")  # Your website's official email address
-    api_key = os.getenv('SENDGRID_API_KEY')
-
-    if sender_email and api_key:
-        url = "https://api.sendgrid.com/v3/mail/send"
-
-        data = {"personalizations": [{
-                    "to": [{"email": receiver_email}],
-                    "subject": subject
-                }],
-
-                "from": {"email": sender_email},
-
-                "content": [{
-                    "type": "text/plain",
-                    "value": text
-                }]
-        }
-
-        headers = {
-            'authorization': "Bearer {0}".format(api_key),
-            'content-type': "application/json"
-        }
-
-        response = requests.request("POST", url=url, data=json.dumps(data), headers=headers)
-
-        print("Sent to SendGrid")
-        print(response.text)
+    
+    # If the app is running on heroku, we call the send_email_task
+    if os.getenv('REDIS_URL'):
+        send_email_task(receiver_email, subject, text)
+        
+    
     else:
-        print("No env vars or no email address")
+        print("We on the localhost, so the email is not for real.")
+        print("---------------PRETEND EMAIL BELOW----------------")
+        print(f"Email recipient: {receiver_email}")
+        print(f"Subject: {subject}")
+        print(f"Text: {text}")
+        print("---------------END OF PRETEND EMAIL---------------")
