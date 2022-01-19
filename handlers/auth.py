@@ -97,4 +97,4 @@ def verify_email(token):
         db.add(user)
         db.commit()
 
-    return render_template("auth/email_verification_result.html", verified=user.verified)
+    return render_template("auth/email_verification.html", verified=user.verified)
